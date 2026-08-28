@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi Step Progress Bar using Bootstrap</title>
+
+<!-- Bootstrap CSS -->
+<link
+  href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
+  rel="stylesheet"
+>
+
+<style>
+  body {
+    background-color: #f4f6f9;
+  }
+
+  .progress-steps {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .progress-line {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: #dee2e6;
+    z-index: 0;
+    margin: 0 40px;
+  }
+
+  .progress-line-fill {
+    height: 100%;
+    width: 0%;
+    background-color: #0d6efd;
+    transition: width 0.4s ease;
+  }
+
+  .step {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    flex: 1;
+  }
+
+  .step-circle {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    color: #495057;
+    font-weight: 600;
+    margin: 0 auto 8px auto;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .step-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
+
+  .step.active .step-circle,
+  .step.completed .step-circle {
+    background-color: #0d6efd;
+    color: #fff;
+  }
+
+  .step.active .step-label,
+  .step.completed .step-label {
+    color: #0d6efd;
+    font-weight: 600;
+  }
+
+  .card {
+    max-width: 700px;
+    margin: 0 auto;
+    border: none;
+    border-radius: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container py-5">
+  <h2 class="text-center mb-5">Multi Step Progress Bar using Bootstrap</h2>
+
+  <!-- Step Indicators -->
+  <div class="progress-steps d-flex justify-content-between position-relative mb-5">
+    <div class="progress-line">
+      <div class="progress-line-fill" id="progressLineFill"></div>
+    </div>
+
+    <div class="step active" data-step="1">
+      <div class="step-circle">1</div>
+      <div class="step-label">Account</div>
+    </div>
+    <div class="step" data-step="2">
+      <div class="step-circle">2</div>
+      <div class="step-label">Profile</div>
+    </div>
+    <div class="step" data-step="3">
+      <div class="step-circle">3</div>
+      <div class="step-label">Payment</div>
+    </div>
+    <div class="step" data-step="4">
+      <div class="step-circle">4</div>
+      <div class="step-label">Final</div>
+    </div>
+  </div>
+
+  <!-- Step Content -->
+  <div class="card shadow-sm p-4">
+    <div class="step-content" data-content="1">
+      <h4>Step 1: Account Details</h4>
+      <p class="text-muted">Enter your basic account information.</p>
+      <input type="text" class="form-control mb-2" placeholder="Username">
+      <input type="email" class="form-control" placeholder="Email">
+    </div>
+
+    <div class="step-content d-none" data-content="2">
+      <h4>Step 2: Profile Information</h4>
+      <p class="text-muted">Tell us a bit about yourself.</p>
+      <input type="text" class="form-control mb-2" placeholder="Full Name">
+      <input type="text" class="form-control" placeholder="Location">
+    </div>
+
+    <div class="step-content d-none" data-content="3">
+      <h4>Step 3: Payment Details</h4>
+      <p class="text-muted">Add your payment method.</p>
+      <input type="text" class="form-control mb-2" placeholder="Card Number">
+      <input type="text" class="form-control" placeholder="Expiry Date">
+    </div>
+
+    <div class="step-content d-none" data-content="4">
+      <h4>Step 4: All Done!</h4>
+      <p class="text-muted">Review and submit your information.</p>
+      <div class="alert alert-success mb-0">You're all set. Click Finish to complete.</div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="d-flex justify-content-between mt-4">
+      <button class="btn btn-outline-secondary" id="prevBtn" disabled>Previous</button>
+      <button class="btn btn-primary" id="nextBtn">Next</button>
+    </div>
+  </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    let currentStep = 1;
+    const totalSteps = $(".step").length;
+
+    function updateProgress() {
+      // Update step circles
+      $(".step").each(function () {
+        const stepNum = parseInt($(this).data("step"));
+        $(this).removeClass("active completed");
+
+        if (stepNum < currentStep) {
+          $(this).addClass("completed");
+        } else if (stepNum === currentStep) {
+          $(this).addClass("active");
+        }
+      });
+
+      // Update connecting line fill
+      const fillPercent = ((currentStep - 1) / (totalSteps - 1)) * 100;
+      $("#progressLineFill").css("width", fillPercent + "%");
+
+      // Show correct step content
+      $(".step-content").addClass("d-none");
+      $(`.step-content[data-content="${currentStep}"]`).removeClass("d-none");
+
+      // Toggle buttons
+      $("#prevBtn").prop("disabled", currentStep === 1);
+      $("#nextBtn").text(currentStep === totalSteps ? "Finish" : "Next");
+    }
+
+    $("#nextBtn").on("click", function () {
+      if (currentStep < totalSteps) {
+        currentStep++;
+        updateProgress();
+      } else {
+        alert("Form submitted successfully!");
+      }
+    });
+
+    $("#prevBtn").on("click", function () {
+      if (currentStep > 1) {
+        currentStep--;
+        updateProgress();
+      }
+    });
+
+    updateProgress();
+  });
+</script>
+</body>
+</html>
